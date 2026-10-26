@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.npmrc
+*.pem
+*.key
+coverage/
+.playwright-cli/
+artifacts/
+*.log

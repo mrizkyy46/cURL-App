@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Turn browser cURL commands into editable requests, executable Node.js code, and real responses.">
+  <title>cURL Workbench — Parse. Edit. Send.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2322d3ee'/%3E%3Ctext x='7' y='28' font-family='monospace' font-size='26' font-weight='bold' fill='%230f172a'%3E%3E_%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <a href="/" class="brand" aria-label="cURL Workbench home"><span class="brand-mark" aria-hidden="true">›_</span><span>cURL<span class="brand-light"> Workbench</span></span><span class="version">v1.0</span></a>
+    <div class="header-right"><span class="local-indicator"><span class="dot"></span> Local workspace</span><button id="help-button" class="icon-button" aria-label="Keyboard shortcuts and help">?</button></div>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div><h1 id="page-title">From copied command to working request.</h1><p>Paste your cURL. Explore every detail. Make it yours.</p></div>
+      <button class="button secondary" id="load-example"><span aria-hidden="true">↻</span> Load example</button>
+    </section>
+    <div class="workspace">
+      <div class="editor-column">
+        <section class="panel input-panel" aria-labelledby="input-heading">
+          <div class="panel-heading"><h2 id="input-heading"><span class="section-icon" aria-hidden="true">›_</span> Import cURL</h2><span class="muted small">Bash · POSIX · Windows CMD</span></div>
+          <div class="source-editor"><span class="prompt-sign" aria-hidden="true">$</span><textarea id="curl-input" class="code-input" aria-label="Raw cURL command" spellcheck="false" placeholder="curl 'https://api.example.com/users' \\&#10;  -H 'Accept: application/json'"></textarea></div>
+          <div class="input-actions"><span id="parse-status" class="status-badge" role="status">Ready to paste</span><div class="button-group"><button id="clear-input" class="button text-button">Clear input</button><button id="parse-button" class="button primary small-button">Parse cURL <span aria-hidden="true">↵</span></button></div></div>
+          <p id="parse-error" class="inline-error" role="alert" hidden></p>
+          <div id="parse-warnings" class="inline-warning" role="status" hidden></div>
+        </section>
+
+        <section class="panel request-panel" aria-labelledby="request-heading">
+          <div class="panel-heading"><h2 id="request-heading"><span class="section-icon" aria-hidden="true">⇄</span> Request editor</h2><span id="request-state" class="muted small">Ready to edit</span></div>
+          <form id="request-form" class="request-bar">
+            <label class="sr-only" for="method">HTTP method</label><select id="method" data-method="GET"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option></select>
+            <label class="sr-only" for="url">Target URL</label><input id="url" type="text" spellcheck="false" placeholder="https://api.example.com/users" autocomplete="off">
+            <button id="send-button" type="submit" class="button primary">Send <span aria-hidden="true">↗</span></button>
+          </form>
+          <div id="validation-message" class="inline-warning" role="status" hidden></div>
+          <div class="tab-list editor-tabs" role="tablist" aria-label="Request properties">
+            <button id="params-tab" class="tab active" role="tab" aria-selected="true" aria-controls="params-panel" data-editor-tab="params">Params <span id="params-count" class="count">0</span></button>
+            <button id="headers-tab" class="tab" role="tab" aria-selected="false" aria-controls="headers-panel" data-editor-tab="headers" tabindex="-1">Headers <span id="headers-count" class="count">0</span></button>
+            <button id="body-tab" class="tab" role="tab" aria-selected="false" aria-controls="body-panel" data-editor-tab="body" tabindex="-1">Body <span id="body-dot" class="body-dot" hidden></span></button>
+          </div>
+          <div id="params-panel" class="editor-content" role="tabpanel" aria-labelledby="params-tab">
+            <div class="table-caption"><span>Query parameters</span><span class="muted small">Included in the request URL</span></div>
+            <div class="table-scroll"><table class="kv-table"><thead><tr><th><span class="sr-only">Enabled</span></th><th>Key</th><th>Value</th><th><span class="sr-only">Delete</span></th></tr></thead><tbody id="params-rows"></tbody></table></div>
+            <button class="add-row" data-add="params">＋ Add new parameter</button>
+          </div>
+          <div id="headers-panel" class="editor-content" role="tabpanel" aria-labelledby="headers-tab" hidden>
+            <div class="table-caption"><span>Request headers</span><span class="muted small">Uncheck to exclude a header</span></div>
+            <div class="table-scroll"><table class="kv-table"><thead><tr><th><span class="sr-only">Enabled</span></th><th>Key</th><th>Value</th><th><span class="sr-only">Delete</span></th></tr></thead><tbody id="headers-rows"></tbody></table></div>
+            <button class="add-row" data-add="headers">＋ Add new header</button>
+          </div>
+          <div id="body-panel" class="editor-content" role="tabpanel" aria-labelledby="body-tab" hidden>
+            <div class="body-toolbar"><label for="body-mode">Body type</label><select id="body-mode"><option value="none">None</option><option value="raw">Raw (JSON / Text)</option><option value="form">x-www-form-urlencoded</option></select><button id="format-json" class="button text-button">Format JSON</button></div>
+            <textarea id="body-input" class="code-input body-input" spellcheck="false" aria-label="Request body" placeholder="Enter your request body"></textarea>
+            <p id="body-hint" class="muted small">Select a body type to send a payload.</p><p id="body-error" class="inline-error" role="alert" hidden></p>
+          </div>
+          <div class="editor-footer"><span><span class="dot cyan"></span> Changes sync to code instantly</span><span id="enabled-summary">0 active fields</span></div>
+        </section>
+
+        <section class="panel response-panel" aria-labelledby="response-heading">
+          <div class="panel-heading"><h2 id="response-heading"><span class="section-icon" aria-hidden="true">↙</span> Response</h2><div id="response-meta" class="response-meta" aria-live="polite"><span class="muted small">No request sent</span></div></div>
+          <div id="response-empty" class="empty-response"><span class="response-symbol" aria-hidden="true">⇄</span><strong>Your next response starts here</strong><p>Send a request to inspect its status, headers, and body.</p><span class="keyboard-hint"><kbd>Ctrl</kbd> <kbd>Enter</kbd> to send</span></div>
+          <div id="response-result" hidden>
+            <div class="response-toolbar"><div class="tab-list" role="tablist" aria-label="Response view"><button id="response-body-tab" class="tab active" role="tab" aria-selected="true" aria-controls="response-body-panel" data-response-tab="body">Body</button><button id="response-headers-tab" class="tab" role="tab" aria-selected="false" aria-controls="response-headers-panel" data-response-tab="headers" tabindex="-1">Headers <span id="response-header-count" class="count">0</span></button></div><label class="small muted"><input id="pretty-response" type="checkbox" checked> Format JSON</label></div>
+            <div id="response-body-panel" role="tabpanel" aria-labelledby="response-body-tab"><pre id="response-body" class="response-code" tabindex="0"></pre></div>
+            <div id="response-headers-panel" role="tabpanel" aria-labelledby="response-headers-tab" hidden><dl id="response-headers" class="response-headers"></dl></div>
+            <p id="proxy-note" class="inline-warning" hidden></p>
+          </div>
+          <p id="response-error" class="inline-error" role="alert" hidden></p>
+        </section>
+      </div>
+
+      <aside class="output-column" aria-label="Generated commands and code">
+        <section class="panel output-panel" aria-labelledby="curl-heading">
+          <div class="panel-heading"><h2 id="curl-heading"><span class="section-icon" aria-hidden="true">⌘</span> Rebuilt cURL</h2><span class="live-badge"><span class="dot"></span> Live</span></div>
+          <div class="code-toolbar"><span class="file-label"><span class="file-dot shell"></span> terminal.sh</span><button class="copy-button" data-copy="curl-output" aria-label="Copy rebuilt cURL">▢ <span>Copy</span></button></div>
+          <div class="code-window"><div id="curl-lines" class="line-numbers" aria-hidden="true"></div><pre id="curl-output" class="generated-code" tabindex="0"></pre></div>
+          <div class="code-footer"><span>Shell-safe quoting</span><span>Bash / POSIX</span></div>
+        </section>
+
+        <section class="panel output-panel" aria-labelledby="snippet-heading">
+          <div class="panel-heading"><h2 id="snippet-heading"><span class="node-symbol" aria-hidden="true">JS</span> Node.js snippet</h2><span class="muted small">Node 18+</span></div>
+          <div class="snippet-toolbar"><div class="tab-list" role="tablist" aria-label="Code client"><button id="fetch-tab" class="tab active" role="tab" aria-selected="true" aria-controls="snippet-panel" data-client="fetch">Native fetch</button><button id="axios-tab" class="tab" role="tab" aria-selected="false" aria-controls="snippet-panel" data-client="axios" tabindex="-1">Axios</button></div><button class="copy-button" data-copy="snippet-output" aria-label="Copy Node.js code">▢ <span>Copy code</span></button></div>
+          <div id="snippet-panel" role="tabpanel" aria-labelledby="fetch-tab"><div class="code-window snippet-window"><div id="snippet-lines" class="line-numbers" aria-hidden="true"></div><pre id="snippet-output" class="generated-code" tabindex="0"></pre></div></div>
+          <div class="code-footer"><span id="snippet-note">Built into Node.js. No dependencies.</span><span class="js-file">JavaScript</span></div>
+        </section>
+        <div class="workflow-note"><span aria-hidden="true">◇</span><p><strong>A direct line to your API.</strong> Requests run through your local Node.js server, so browser CORS stays out of the way.</p></div>
+      </aside>
+    </div>
+    <footer class="app-footer"><span>cURL Workbench <span class="footer-divider">/</span> Your request, decoded.</span><span>Input stays in this workspace until you send a request.</span></footer>
+  </main>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="help-dialog"><form method="dialog"><div class="panel-heading"><h2>Workspace guide</h2><button class="icon-button" aria-label="Close help">×</button></div><div class="help-content"><p>In browser DevTools, open Network, right-click a request, then choose <strong>Copy → Copy as cURL</strong>. Paste it into Import cURL to get started.</p><dl><dt><kbd>Ctrl / ⌘</kbd> <kbd>Enter</kbd></dt><dd>Send the current request</dd><dt><kbd>Ctrl / ⌘</kbd> <kbd>Shift</kbd> <kbd>Enter</kbd></dt><dd>Parse the input command</dd></dl><p>Generated cURL uses Bash / POSIX quoting. File uploads, shell evaluation, and multiple URLs are unsupported. Redirect responses are displayed without following them.</p></div></form></dialog>
+</body>
+</html>

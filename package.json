@@ -1,0 +1,14 @@
+{
+  "name": "curl-workbench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A local visual cURL parser, request editor, and Node.js snippet generator",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
+  "dependencies": { "express": "^5.2.1" }
+}
