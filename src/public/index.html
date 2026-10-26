@@ -12,7 +12,7 @@
 <body>
   <header class="app-header">
     <a href="/" class="brand" aria-label="cURL Workbench home"><span class="brand-mark" aria-hidden="true">›_</span><span>cURL<span class="brand-light"> Workbench</span></span><span class="version">v1.0</span></a>
-    <div class="header-right"><span class="local-indicator"><span class="dot"></span> Local workspace</span><button id="help-button" class="icon-button" aria-label="Keyboard shortcuts and help">?</button></div>
+    <div class="header-right"><span class="local-indicator"><span class="dot"></span> Local workspace</span><button id="history-button" class="button secondary history-button" aria-haspopup="dialog" aria-controls="history-dialog">History <span id="history-count" class="count">0</span></button><button id="help-button" class="icon-button" aria-label="Keyboard shortcuts and help">?</button></div>
   </header>
   <main>
     <section class="intro" aria-labelledby="page-title">
@@ -76,7 +76,7 @@
       <aside class="output-column" aria-label="Generated commands and code">
         <section class="panel output-panel" aria-labelledby="curl-heading">
           <div class="panel-heading"><h2 id="curl-heading"><span class="section-icon" aria-hidden="true">⌘</span> Rebuilt cURL</h2><span class="live-badge"><span class="dot"></span> Live</span></div>
-          <div class="code-toolbar"><span class="file-label"><span class="file-dot shell"></span> terminal.sh</span><button class="copy-button" data-copy="curl-output" aria-label="Copy rebuilt cURL">▢ <span>Copy</span></button></div>
+          <div class="code-toolbar"><span class="file-label"><span class="file-dot shell"></span> terminal.sh</span><div class="button-group"><button id="save-history" class="copy-button">Save to history</button><button class="copy-button" data-copy="curl-output" aria-label="Copy rebuilt cURL">▢ <span>Copy</span></button></div></div>
           <div class="code-window"><div id="curl-lines" class="line-numbers" aria-hidden="true"></div><pre id="curl-output" class="generated-code" tabindex="0"></pre></div>
           <div class="code-footer"><span>Shell-safe quoting</span><span>Bash / POSIX</span></div>
         </section>
@@ -90,9 +90,17 @@
         <div class="workflow-note"><span aria-hidden="true">◇</span><p><strong>A direct line to your API.</strong> Requests run through your local Node.js server, so browser CORS stays out of the way.</p></div>
       </aside>
     </div>
-    <footer class="app-footer"><span>cURL Workbench <span class="footer-divider">/</span> Your request, decoded.</span><span>Input stays in this workspace until you send a request.</span></footer>
+    <footer class="app-footer"><span>cURL Workbench <span class="footer-divider">/</span> Your request, decoded.</span><span>History stays in this browser. Requests run when you send.</span></footer>
   </main>
   <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="history-dialog" aria-labelledby="history-heading" aria-describedby="history-description">
+    <div class="panel-heading"><h2 id="history-heading">cURL history</h2><button id="close-history" class="icon-button" aria-label="Close history">×</button></div>
+    <div class="history-toolbar"><p id="history-description">Last 50 requests, saved in this browser. Headers and body may contain credentials.</p><button id="clear-history" class="button text-button">Clear history</button></div>
+    <p id="history-error" class="inline-error" role="alert" hidden></p>
+    <p id="history-empty" class="history-empty">No saved requests yet. Use Save to history, Parse cURL, or Send to keep a request here.</p>
+    <ul id="history-list" class="history-list" aria-label="Saved requests"></ul>
+    <div class="code-footer"><span>Open a request to continue editing. Nothing is sent automatically.</span></div>
+  </dialog>
   <dialog id="help-dialog"><form method="dialog"><div class="panel-heading"><h2>Workspace guide</h2><button class="icon-button" aria-label="Close help">×</button></div><div class="help-content"><p>In browser DevTools, open Network, right-click a request, then choose <strong>Copy → Copy as cURL</strong>. Paste it into Import cURL to get started.</p><dl><dt><kbd>Ctrl / ⌘</kbd> <kbd>Enter</kbd></dt><dd>Send the current request</dd><dt><kbd>Ctrl / ⌘</kbd> <kbd>Shift</kbd> <kbd>Enter</kbd></dt><dd>Parse the input command</dd></dl><p>Generated cURL uses Bash / POSIX quoting. File uploads, shell evaluation, and multiple URLs are unsupported. Redirect responses are displayed without following them.</p></div></form></dialog>
 </body>
 </html>

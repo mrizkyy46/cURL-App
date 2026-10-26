@@ -33,6 +33,14 @@ Open **http://127.0.0.1:3000**. Set `PORT` to change the listening port. `npm ru
 
 Shortcuts: **Ctrl/Cmd + Enter** sends; **Ctrl/Cmd + Shift + Enter** parses. Tabs support arrow keys, Home, and End.
 
+## cURL history
+
+Use **Save to history** beside the rebuilt cURL to save the current edited request. Successful manual **Parse cURL** actions and valid **Send** attempts also save a snapshot. Automatic parsing while typing, loading the example, and opening an existing entry do not create history entries.
+
+Open **History** in the app header to restore or delete a request, or choose **Clear history** to remove all saved entries. Restoring opens the full editor, including disabled rows and the original query encoding; it never sends a request. Exact duplicate snapshots move to the top instead of creating another entry. The latest 50 requests are retained, with older entries removed when the local history size limit is reached.
+
+History persists across reloads in this browser's local storage for the same app origin. It contains complete headers and body, which may include credentials, and is not encrypted. Delete saved requests before sharing a browser profile. It is not stored in the project, sent to a history server, or included in Git commits. Browser storage restrictions or capacity errors are shown without blocking the editor or request execution.
+
 ## Structure and data flow
 
 ```text
@@ -41,11 +49,12 @@ src/public/index.html         Accessible two-column workspace
 src/public/css/styles.css     Responsive dark theme
 src/public/js/parser.js       Shell tokenizer + request model
 src/public/js/generators.js   cURL, fetch, axios + validation
+src/public/js/history.js      Browser-local request snapshots
 src/public/js/app.js          Reactive editor + response viewer
 test/                        Parser, generator, and proxy integration tests
 ```
 
-Raw command → shell tokens → normalized request model → form editor → generators / proxy → response viewer. Editing the form changes generated output; the original import remains available for reference. No shell commands are executed. Request data is held in memory and is not persisted by the app.
+Raw command → shell tokens → normalized request model → form editor → generators / proxy → response viewer. Editing the form changes generated output; the original import remains available for reference. No shell commands are executed. The active editor is held in memory; saved history snapshots persist in browser local storage.
 
 ## Supported parsing
 
@@ -72,11 +81,11 @@ The server listens only on `127.0.0.1` and checks Host and Origin. HTTP(S) targe
 
 ## Publishing
 
-The app includes no API keys or service credentials. Imported requests stay in page memory until **Send**; sent headers and bodies go to the target server. Do not commit `.env` files or real captured requests. The supplied `.gitignore` excludes local environment files, npm credentials, private keys, dependencies, and browser test artifacts. This app is a local developer tool; it is not configured for public hosting or exposed proxy access.
+The app includes no API keys or service credentials. Saved history stays in browser local storage; **Send** forwards headers and bodies to the target server. Do not commit `.env` files or real captured requests. The supplied `.gitignore` excludes local environment files, npm credentials, private keys, dependencies, and browser test artifacts. This app is a local developer tool; it is not configured for public hosting or exposed proxy access.
 
 ## Contributing
 
-Create a short branch from `main` for each change. Use a Conventional Commit message such as `feat: add request history` or `fix: preserve repeated query keys`. Before opening a pull request, run `npm test` and `npm audit --omit=dev`. GitHub Actions checks Node.js 18, 20, and 22 on pushes and pull requests; Dependabot checks npm and GitHub Actions updates weekly.
+Create a short branch from `main` for each change. Use a Conventional Commit message such as `feat: add request history` or `fix: preserve repeated query keys`. Before opening a pull request, run `npm test` and `npm audit --omit=dev`. GitHub Actions checks Node.js 18, 20, and 22 on pushes and pull requests.
 
 Keep `main` releasable: changes enter through reviewed pull requests after CI passes.
 

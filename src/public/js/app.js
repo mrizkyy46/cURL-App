@@ -1,5 +1,6 @@
-import { parseCurl, emptyRequest, splitUrl } from './parser.js';
+import { parseCurl, emptyRequest, splitUrl, buildUrl } from './parser.js';
 import { generateCurl, generateSnippet, requestPayload, validateRequest } from './generators.js';
+import { createHistoryStore, HISTORY_KEY } from './history.js';
 
 const $ = id => document.getElementById(id);
 const example = `curl 'https://jsonplaceholder.typicode.com/posts?userId=1&_limit=3' \\
@@ -8,6 +9,8 @@ const example = `curl 'https://jsonplaceholder.typicode.com/posts?userId=1&_limi
   -H 'X-Request-Source: curl-workbench'`;
 let request = emptyRequest(), client = 'fetch', responseData = null, activeController = null;
 let parseTimer, toastTimer;
+const historyStore = createHistoryStore();
+let historyEntries = [], historyError = '';
 
 function message(id, text) { $(id).textContent = text; $(id).hidden = !text; }
 function toast(text, error = false) {
@@ -45,6 +48,64 @@ function updateOutputs() {
   const fields = [...request.params, ...request.headers].filter(row => row.enabled).length;
   $('enabled-summary').textContent = `${fields} active field${fields === 1 ? '' : 's'}`;
   $('method').dataset.method = request.method;
+  $('save-history').disabled = !request.baseUrl;
+}
+
+function renderHistory() {
+  $('history-count').textContent = historyError ? '!' : historyEntries.length;
+  $('history-button').setAttribute('aria-label', historyError ? 'Open cURL history, history needs attention' : `Open cURL history, ${historyEntries.length} saved requests`);
+  $('clear-history').disabled = !historyEntries.length && !historyError;
+  $('history-empty').hidden = Boolean(historyEntries.length || historyError);
+  message('history-error', historyError);
+  $('history-list').replaceChildren();
+  for (const entry of historyEntries) {
+    const item = document.createElement('li'), open = document.createElement('button');
+    open.className = 'history-open';
+    const method = document.createElement('span'); method.className = 'history-method'; method.dataset.method = entry.request.method; method.textContent = entry.request.method;
+    const details = document.createElement('span'); details.className = 'history-details';
+    const url = document.createElement('span'); url.className = 'history-url'; url.textContent = buildUrl(entry.request); url.title = url.textContent;
+    const date = document.createElement('time'); date.dateTime = new Date(entry.savedAt).toISOString(); date.textContent = new Date(entry.savedAt).toLocaleString();
+    details.append(url, date); open.append(method, details);
+    open.addEventListener('click', () => {
+      if (activeController) { message('history-error', 'Cancel the running request before opening history.'); return; }
+      clearTimeout(parseTimer);
+      request = JSON.parse(JSON.stringify(entry.request));
+      $('curl-input').value = generateCurl(request);
+      syncEditor(); resetResponse();
+      $('parse-status').textContent = 'Loaded from history'; $('parse-status').className = 'status-badge success';
+      $('request-state').textContent = 'Ready to edit';
+      message('parse-error', ''); message('parse-warnings', request.warnings.join(' ')); message('body-error', '');
+      $('history-dialog').close(); $('url').focus(); toast('Request loaded from history.');
+    });
+    const remove = document.createElement('button'); remove.className = 'delete-row'; remove.textContent = '×';
+    remove.setAttribute('aria-label', `Delete ${entry.request.method} ${buildUrl(entry.request)} from history`);
+    remove.addEventListener('click', () => {
+      const index = historyEntries.findIndex(item => item.id === entry.id);
+      try {
+        historyEntries = historyStore.remove(entry.id); historyError = ''; renderHistory();
+        const buttons = $('history-list').querySelectorAll('.history-open');
+        (buttons[Math.min(index, buttons.length - 1)] || $('close-history')).focus();
+      } catch (error) { historyError = error.message; renderHistory(); }
+    });
+    item.append(open, remove); $('history-list').append(item);
+  }
+}
+
+function refreshHistory() {
+  try { historyEntries = historyStore.list(); historyError = ''; }
+  catch (error) { historyEntries = []; historyError = error.message; }
+  renderHistory();
+}
+
+function saveHistory(showSuccess = false) {
+  try {
+    historyEntries = historyStore.save(request); historyError = ''; renderHistory();
+    if (showSuccess) toast('Request saved to history.');
+    return true;
+  } catch (error) {
+    historyError = error.message; renderHistory(); toast(error.message, true);
+    return false;
+  }
 }
 
 function renderRows(kind, animate = false) {
@@ -100,7 +161,7 @@ function parseInput(manual = false) {
     request = parsed; syncEditor();
     $('parse-status').textContent = 'Parsed successfully'; $('parse-status').className = 'status-badge success';
     $('request-state').textContent = 'Ready to edit'; message('parse-error', ''); message('parse-warnings', request.warnings.join(' ')); message('body-error', '');
-    if (manual) toast('cURL parsed. Your request is ready to edit.');
+    if (manual && saveHistory()) toast('cURL parsed and saved to history.');
   } catch (error) {
     $('parse-status').textContent = 'Check your command'; $('parse-status').className = 'status-badge error';
     message('parse-error', error.message); message('parse-warnings', ''); $('request-state').textContent = 'Previous request retained';
@@ -123,6 +184,7 @@ async function sendRequest(event) {
   if (activeController) { activeController.abort(); return; }
   const errors = validateRequest(request);
   if (errors.length) { toast(errors[0], true); return; }
+  saveHistory();
   const controller = new AbortController(); activeController = controller;
   $('send-button').textContent = 'Cancel'; $('send-button').disabled = false;
   $('response-meta').textContent = 'Sending…'; message('response-error', '');
@@ -218,6 +280,15 @@ document.querySelectorAll('[data-copy]').forEach(button => button.addEventListen
   } catch { toast('Clipboard access unavailable. Select the code and copy it manually.', true); }
 }));
 $('help-button').addEventListener('click', () => $('help-dialog').showModal());
-document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') { event.preventDefault(); if (event.shiftKey) parseInput(true); else sendRequest(); } });
+$('history-button').addEventListener('click', () => { refreshHistory(); $('history-dialog').showModal(); });
+$('close-history').addEventListener('click', () => $('history-dialog').close());
+$('save-history').addEventListener('click', () => saveHistory(true));
+$('clear-history').addEventListener('click', () => {
+  try { historyEntries = historyStore.clear(); historyError = ''; renderHistory(); $('close-history').focus(); toast('History cleared.'); }
+  catch (error) { historyError = error.message; renderHistory(); }
+});
+window.addEventListener('storage', event => { if (event.key === HISTORY_KEY || event.key === null) refreshHistory(); });
+document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && !document.querySelector('dialog[open]')) { event.preventDefault(); if (event.shiftKey) parseInput(true); else sendRequest(); } });
+refreshHistory();
 $('curl-input').value = example;
 parseInput();
