@@ -1,0 +1,125 @@
+/* Existing palette and typography, exposed as named Tailwind utilities. */
+@theme {
+  --color-canvas: #0b1120;
+  --color-surface: #0f172a;
+  --color-raised: #172237;
+  --color-border: #29354a;
+  --color-text: #e2e8f0;
+  --color-muted: #98a8bf;
+  --color-cyan: #22d3ee;
+  --color-green: #6ee7b7;
+  --color-yellow: #facc75;
+  --color-red: #fda4af;
+  --color-brand-border: #387888;
+  --color-brand-surface: #153743;
+  --color-icon-border: #40516b;
+  --color-primary-text: #082b35;
+  --color-cyan-hover: #67e8f9;
+  --color-secondary-text: #cbd5e1;
+  --color-secondary-border: #36445b;
+  --color-secondary-hover: #53657e;
+  --color-input-surface: #0b1323;
+  --color-input-border: #26354b;
+  --color-placeholder: #71839d;
+  --color-error-text: #fecdd3;
+  --color-error-surface: #381d2b;
+  --color-error-border: #733246;
+  --color-warning-text: #f9d78e;
+  --color-warning-surface: #322a1d;
+  --color-warning-border: #645237;
+  --color-request-border: #35465f;
+  --color-method-put: #93c5fd;
+  --color-method-patch: #c4b5fd;
+  --color-count-surface: #202c41;
+  --color-count-active: #163542;
+  --color-count-text: #67d7e6;
+  --color-table-caption: #b8c6d9;
+  --color-table-heading: #172236;
+  --color-field-text: #d4deed;
+  --color-field-placeholder: #6f829e;
+  --color-delete: #7e91ac;
+  --color-disabled: #718198;
+  --color-cyan-soft: #a5f3fc;
+  --color-editor-footer: #111c2e;
+  --color-live-surface: #13332f;
+  --color-toolbar: #121d2f;
+  --color-code-border: #233047;
+  --color-code-surface: #0c1424;
+  --color-line-number: #586d89;
+  --color-code-text: #c1d5e7;
+  --color-syntax-string: #a2dbb2;
+  --color-code-muted: #8294af;
+  --color-node-border: #68824c;
+  --color-node-text: #b1d38a;
+  --color-js-file: #dcc47a;
+  --color-workflow: #b9c8db;
+  --color-response-icon: #8198b6;
+  --color-response-title: #bdcadd;
+  --color-key-border: #3b4a63;
+  --color-key-text: #adbed3;
+  --color-status-success: #16362f;
+  --color-status-failed: #3a2331;
+  --color-status-redirect: #3a3021;
+  --color-footer: #8193ad;
+  --color-footer-divider: #50637f;
+  --color-toast-surface: #1e3a43;
+  --color-toast-border: #387480;
+  --color-toast-text: #cffafe;
+  --color-toast-error-border: #87475e;
+  --color-dialog-border: #43516b;
+  --color-backdrop: #030817bb;
+  --color-row-highlight: #153f49;
+  --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Workbench Mono', 'Cascadia Code', Consolas, monospace;
+  --text-micro: 8px;
+  --text-tiny: 9px;
+  --text-caption: 10px;
+  --text-label: 11px;
+  --text-control: 12px;
+  --text-ui: 13px;
+  --text-brand-narrow: 14px;
+  --text-brand-mobile: 16px;
+  --text-control-icon: 17px;
+  --text-brand: 18px;
+  --text-section-icon: 19px;
+  --text-title-tablet: 22px;
+  --text-title-compact: 23px;
+  --text-title-mobile: 24px;
+  --text-title: 25px;
+  --text-brand-mark: 26px;
+  --text-response-symbol: 28px;
+  --font-weight-book: 450;
+  --tracking-brand: -0.6px;
+  --tracking-title: -0.8px;
+  --tracking-heading: -0.1px;
+  --leading-title: 1.3;
+  --leading-feedback: 1.6;
+  --leading-detail: 1.7;
+  --leading-response: 1.8;
+  --leading-editor: 1.9;
+  --leading-code: 1.95;
+  --leading-native: normal;
+  --radius-glyph: 3px;
+  --radius-field: 5px;
+  --radius-request: 7px;
+  --radius-mark: 9px;
+  --radius-panel: 10px;
+  --radius-circle: 50%;
+  --container-workspace: 1720px;
+  --animate-row-added: row-added 0.3s ease-out;
+  --shadow-toast: 0 10px 40px #0006;
+
+  @keyframes row-added {
+    from { background-color: var(--color-row-highlight); }
+    to { background-color: transparent; }
+  }
+}
+
+/* Inclusive boundaries preserve the previous responsive behavior. */
+@custom-variant compact (@media (width <= 1100px));
+@custom-variant stacked (@media (width <= 800px));
+@custom-variant mobile (@media (width <= 480px));
+@custom-variant narrow (@media (width <= 380px));
+@custom-variant wide (@media (width >= 1500px));
+@utility grid-cols-workspace { grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); }
+@utility grid-cols-workspace-compact { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }

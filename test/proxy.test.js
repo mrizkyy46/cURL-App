@@ -29,6 +29,12 @@ test('proxy executes requests, preserves errors/redirects, validates input, and 
       const page = await fetch(base); assert.equal(page.status, 200); assert.match(await page.text(), /cURL Workbench/);
       assert.match(page.headers.get('content-security-policy'), /frame-ancestors 'none'/);
       assert.equal((await fetch(base + '/js/parser.js')).status, 200);
+      const stylesheet = await fetch(base + '/css/tailwind.css');
+      assert.equal(stylesheet.status, 200, 'build Tailwind CSS before running tests');
+      assert.match(stylesheet.headers.get('content-type'), /text\/css/);
+      const css = await stylesheet.text();
+      assert.match(css, /\.grid-cols-workspace/);
+      assert.doesNotMatch(css, /@(?:apply|theme|source)\b/, 'serve compiled CSS, not Tailwind directives');
     });
     await t.test('forwards POST body, query, auth-like headers and records response metadata', async () => {
       const { status, data } = await send(payload);

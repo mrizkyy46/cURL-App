@@ -6,21 +6,21 @@
   <meta name="description" content="Turn browser cURL commands into editable requests, executable Node.js code, and real responses.">
   <title>cURL Workbench — Parse. Edit. Send.</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2322d3ee'/%3E%3Ctext x='7' y='28' font-family='monospace' font-size='26' font-weight='bold' fill='%230f172a'%3E%3E_%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/tailwind.css">
   <script type="module" src="/js/app.js"></script>
 </head>
 <body>
-  <header class="app-header">
+  <header class="app-header flex h-19 items-center justify-between border-b border-b-border bg-surface px-9.5 compact:px-5.5 mobile:h-16 mobile:px-4">
     <a href="/" class="brand" aria-label="cURL Workbench home"><span class="brand-mark" aria-hidden="true">›_</span><span>cURL<span class="brand-light"> Workbench</span></span><span class="version">v1.0</span></a>
     <div class="header-right"><span class="local-indicator"><span class="dot"></span> Local workspace</span><button id="history-button" class="button secondary history-button" aria-haspopup="dialog" aria-controls="history-dialog">History <span id="history-count" class="count">0</span></button><button id="help-button" class="icon-button" aria-label="Keyboard shortcuts and help">?</button></div>
   </header>
-  <main>
-    <section class="intro" aria-labelledby="page-title">
+  <main class="mx-auto max-w-workspace px-9.5 pt-8 pb-0 wide:pt-9.5 compact:px-5.5 compact:pt-6 mobile:px-3 mobile:pt-5.5">
+    <section class="intro mb-7 flex items-center justify-between gap-5 stacked:items-start mobile:mb-5 mobile:flex-col mobile:gap-4" aria-labelledby="page-title">
       <div><h1 id="page-title">From copied command to working request.</h1><p>Paste your cURL. Explore every detail. Make it yours.</p></div>
       <button class="button secondary" id="load-example"><span aria-hidden="true">↻</span> Load example</button>
     </section>
-    <div class="workspace">
-      <div class="editor-column">
+    <div class="workspace grid grid-cols-workspace items-start gap-6 compact:grid-cols-workspace-compact compact:gap-4 stacked:grid-cols-1">
+      <div class="editor-column flex min-w-0 flex-col gap-5">
         <section class="panel input-panel" aria-labelledby="input-heading">
           <div class="panel-heading"><h2 id="input-heading"><span class="section-icon" aria-hidden="true">›_</span> Import cURL</h2><span class="muted small">Bash · POSIX · Windows CMD</span></div>
           <div class="source-editor"><span class="prompt-sign" aria-hidden="true">$</span><textarea id="curl-input" class="code-input" aria-label="Raw cURL command" spellcheck="false" placeholder="curl 'https://api.example.com/users' \\&#10;  -H 'Accept: application/json'"></textarea></div>
@@ -43,12 +43,12 @@
             <button id="body-tab" class="tab" role="tab" aria-selected="false" aria-controls="body-panel" data-editor-tab="body" tabindex="-1">Body <span id="body-dot" class="body-dot" hidden></span></button>
           </div>
           <div id="params-panel" class="editor-content" role="tabpanel" aria-labelledby="params-tab">
-            <div class="table-caption"><span>Query parameters</span><span class="muted small">Included in the request URL</span></div>
+            <div class="kv-caption"><span>Query parameters</span><span class="muted small">Included in the request URL</span></div>
             <div class="table-scroll"><table class="kv-table"><thead><tr><th><span class="sr-only">Enabled</span></th><th>Key</th><th>Value</th><th><span class="sr-only">Delete</span></th></tr></thead><tbody id="params-rows"></tbody></table></div>
             <button class="add-row" data-add="params">＋ Add new parameter</button>
           </div>
           <div id="headers-panel" class="editor-content" role="tabpanel" aria-labelledby="headers-tab" hidden>
-            <div class="table-caption"><span>Request headers</span><span class="muted small">Uncheck to exclude a header</span></div>
+            <div class="kv-caption"><span>Request headers</span><span class="muted small">Uncheck to exclude a header</span></div>
             <div class="table-scroll"><table class="kv-table"><thead><tr><th><span class="sr-only">Enabled</span></th><th>Key</th><th>Value</th><th><span class="sr-only">Delete</span></th></tr></thead><tbody id="headers-rows"></tbody></table></div>
             <button class="add-row" data-add="headers">＋ Add new header</button>
           </div>
@@ -73,7 +73,7 @@
         </section>
       </div>
 
-      <aside class="output-column" aria-label="Generated commands and code">
+      <aside class="output-column flex min-w-0 flex-col gap-5 stacked:mt-0.5 stacked:gap-4.5" aria-label="Generated commands and code">
         <section class="panel output-panel" aria-labelledby="curl-heading">
           <div class="panel-heading"><h2 id="curl-heading"><span class="section-icon" aria-hidden="true">⌘</span> Rebuilt cURL</h2><span class="live-badge"><span class="dot"></span> Live</span></div>
           <div class="code-toolbar"><span class="file-label"><span class="file-dot shell"></span> terminal.sh</span><div class="button-group"><button id="save-history" class="copy-button">Save to history</button><button class="copy-button" data-copy="curl-output" aria-label="Copy rebuilt cURL">▢ <span>Copy</span></button></div></div>
@@ -90,7 +90,7 @@
         <div class="workflow-note"><span aria-hidden="true">◇</span><p><strong>A direct line to your API.</strong> Requests run through your local Node.js server, so browser CORS stays out of the way.</p></div>
       </aside>
     </div>
-    <footer class="app-footer"><span>cURL Workbench <span class="footer-divider">/</span> Your request, decoded.</span><span>History stays in this browser. Requests run when you send.</span></footer>
+    <footer class="app-footer flex justify-between gap-5 pt-6.5 pb-5.5 text-caption text-footer stacked:flex-col stacked:gap-1.5"><span>cURL Workbench <span class="footer-divider">/</span> Your request, decoded.</span><span>History stays in this browser. Requests run when you send.</span></footer>
   </main>
   <div id="toast" class="toast" role="status" hidden></div>
   <dialog id="history-dialog" aria-labelledby="history-heading" aria-describedby="history-description">

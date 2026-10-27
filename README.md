@@ -14,14 +14,16 @@ A local Node.js developer tool for turning DevTools cURL commands into editable 
 
 ## Run
 
-Requires Node.js 18 or newer and npm.
+Requires Node.js 18 or newer and npm. Installing/building the development tools requires Node.js 18.18+ (or 20.9+); Node.js 22 is also supported in CI.
 
 ```sh
 npm install
 npm start
 ```
 
-Open **http://127.0.0.1:3000**. Set `PORT` to change the listening port. `npm run dev` enables Node's file watcher. No frontend build step is needed.
+Open **http://127.0.0.1:3000**. Set `PORT` to change the listening port. `npm start` builds the local Tailwind stylesheet before starting Express. `npm run dev` builds once, then watches both the server and Tailwind sources. To build CSS separately, run `npm run build`; `npm run dev:css` watches only CSS.
+
+Styling uses Tailwind CSS 4.1.18, pinned to retain Node.js 18 compatibility. The existing dark theme, native control defaults, responsive boundaries, and state classes are preserved. Tailwind Preflight is intentionally omitted. Use modern browsers supported by [Tailwind v4](https://tailwindcss.com/docs/compatibility) (Chrome 111+, Safari 16.4+, Firefox 128+).
 
 ## Use
 
@@ -46,7 +48,11 @@ History persists across reloads in this browser's local storage for the same app
 ```text
 server.js                     Express static server + POST /api/proxy
 src/public/index.html         Accessible two-column workspace
-src/public/css/styles.css     Responsive dark theme
+src/styles/tailwind.css       Tailwind entry and explicit source scanning
+src/styles/theme.css          Existing design tokens and responsive variants
+src/styles/base.css           Native defaults, dark scheme, keyboard focus
+src/styles/components.css     Shared components, state styles, responsive overrides
+src/public/css/tailwind.css   Generated stylesheet (ignored by Git)
 src/public/js/parser.js       Shell tokenizer + request model
 src/public/js/generators.js   cURL, fetch, axios + validation
 src/public/js/history.js      Browser-local request snapshots
@@ -85,16 +91,18 @@ The app includes no API keys or service credentials. Saved history stays in brow
 
 ## Contributing
 
-Create a short branch from `main` for each change. Use a Conventional Commit message such as `feat: add request history` or `fix: preserve repeated query keys`. Before opening a pull request, run `npm test` and `npm audit --omit=dev`. GitHub Actions checks Node.js 18, 20, and 22 on pushes and pull requests.
+Create a short branch from `main` for each change. Use a Conventional Commit message such as `feat: add request history` or `fix: preserve repeated query keys`. Before opening a pull request, run `npm run build`, `npm run lint`, `npm test`, and `npm audit --omit=dev`. GitHub Actions checks Node.js 18, 20, and 22 on pushes and pull requests.
 
-Keep `main` releasable: changes enter through reviewed pull requests after CI passes.
+Keep `main` releasable: changes enter through reviewed pull requests after CI passes. See the [styling migration audit and verification report](docs/tailwind-migration.md) for design decisions, migration stages, and rollback instructions.
 
 ## Verify
 
 ```sh
+npm run build
+npm run lint
 npm test
 ```
 
-Uses Node's built-in test runner, a local HTTP fixture, and no third-party test server. Covers Bash/CMD/ANSI-C parsing, malformed input, query encoding, disabled fields, round-trip reconstruction, generated fetch execution, proxy forwarding, origin/host checks, upstream errors, redirects, timeouts, and response limits.
+Uses Node's built-in test runner, a local HTTP fixture, and no third-party test server. Build first so the static-serving test can verify the compiled stylesheet. Covers Bash/CMD/ANSI-C parsing, malformed input, query encoding, disabled fields, round-trip reconstruction, generated fetch execution, proxy forwarding, origin/host checks, upstream errors, redirects, timeouts, and response limits. Lint checks JavaScript with ESLint and CSS with Stylelint; the Tailwind build also validates utility names in `@apply`.
 
 Parser semantics were checked against the [cURL manual](https://curl.se/docs/manpage.html) and [Chromium's DevTools export tests](https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/panels/network/NetworkLogView.test.ts). Static serving and request handling use the [Express API](https://expressjs.com/en/5x/api.html).

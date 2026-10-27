@@ -1,0 +1,74 @@
+/* Preserve the existing reset and native form/dialog defaults; no Preflight. */
+@font-face {
+  font-family: 'Workbench Mono';
+  src: local('JetBrains Mono'), local('Fira Code'), local('Cascadia Code');
+}
+
+:root {
+  @apply scheme-dark;
+}
+
+* {
+  @apply box-border;
+}
+
+body {
+  @apply m-0 bg-canvas text-text font-sans text-ui leading-normal;
+}
+
+button,input,select,textarea {
+  font: inherit;
+}
+
+button {
+  @apply cursor-pointer;
+}
+
+button:disabled {
+  @apply cursor-not-allowed opacity-50;
+}
+
+button,a,input,select,textarea {
+  @apply outline-offset-4;
+}
+
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,pre:focus-visible {
+  outline: 2px solid var(--color-cyan);
+}
+
+button {
+  @apply text-inherit;
+}
+
+a {
+  @apply text-inherit no-underline;
+}
+
+[hidden] {
+  @apply hidden!;
+}
+
+h1 {
+  @apply text-title font-semibold tracking-title leading-title mt-0 mx-0 mb-1.75;
+}
+
+h2 {
+  @apply text-ui tracking-heading font-semibold m-0 flex items-center gap-2.25;
+}
+
+select option {
+  @apply text-text bg-surface;
+}
+
+kbd {
+  @apply font-mono font-normal text-tiny leading-native border border-solid border-key-border border-b-2 rounded-glyph py-0.5 px-1.25 text-key-text bg-raised;
+}
+
+dialog {
+  @apply p-0 max-w-130 bg-surface text-text border border-solid border-dialog-border rounded-panel;
+  width: calc(100% - 32px);
+}
+
+dialog::backdrop {
+  @apply bg-backdrop;
+}

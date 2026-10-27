@@ -8,4 +8,5 @@ node_modules/
 coverage/
 .playwright-cli/
 artifacts/
+src/public/css/tailwind.css
 *.log

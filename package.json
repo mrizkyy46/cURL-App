@@ -4,11 +4,28 @@
   "private": true,
   "description": "A local visual cURL parser, request editor, and Node.js snippet generator",
   "type": "module",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "build": "tailwindcss -i ./src/styles/tailwind.css -o ./src/public/css/tailwind.css --minify",
+    "prestart": "npm run build",
     "start": "node server.js",
-    "dev": "node --watch server.js",
+    "predev": "npm run build",
+    "dev": "node scripts/dev.mjs",
+    "dev:css": "tailwindcss -i ./src/styles/tailwind.css -o ./src/public/css/tailwind.css --watch",
+    "lint": "eslint . && stylelint \"src/styles/**/*.css\"",
     "test": "node --test"
   },
-  "dependencies": { "express": "^5.2.1" }
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.4",
+    "@tailwindcss/cli": "4.1.18",
+    "eslint": "9.39.4",
+    "globals": "15.15.0",
+    "stylelint": "16.8.2",
+    "tailwindcss": "4.1.18"
+  }
 }
