@@ -209,7 +209,7 @@
 }
 
 .tab.active:after {
-  @apply absolute -bottom-0.25 left-0 right-0 h-0.5 bg-cyan;
+  @apply absolute -bottom-px left-0 right-0 h-0.5 bg-cyan;
   content: '';
 }
 
@@ -218,7 +218,7 @@
 }
 
 .count {
-  @apply font-mono font-normal text-caption leading-native text-muted bg-count-surface rounded-sm py-0.25 px-1.25 min-w-4.5;
+  @apply font-mono font-normal text-caption leading-native text-muted bg-count-surface rounded-sm py-px px-1.25 min-w-4.5;
 }
 
 .tab.active .count {
@@ -847,7 +847,7 @@
 @media (prefers-reduced-motion:reduce) {
   *,*:before,*:after {
     @apply scroll-auto!;
-    animation: none !important;
-    transition: none !important;
+    animation: none;
+    transition: none;
   }
 }
